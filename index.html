@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Evolución de los Sistemas Operativos — Timeline Interactivo</title>
+    <style>
+        :root {
+            --bg: #0b0c10;
+            /* fondo oscuro elegante */
+            --panel: #101218;
+            /* panel cards */
+            --muted: #7f8c8d;
+            /* texto secundario */
+            --text: #e8ecf1;
+            /* texto principal */
+            --line: #222631;
+            /* línea del timeline */
+            --chip: #1b1f2a;
+            /* chips/controles */
+            --accent: #6c5ce7;
+            /* acento */
+            --shadow: 0 10px 30px rgba(0, 0, 0, .35);
+            --radius: 18px;
+            --gap: 18px;
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        html,
+        body {
+            height: 100%
+        }
+
+        body {
+            margin: 0;
+            font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+            background: radial-gradient(1200px 800px at 80% -10%, rgba(108, 92, 231, .08), transparent),
+                radial-gradient(900px 600px at 10% 110%, rgba(80, 250, 123, .06), transparent),
+                var(--bg);
+            color: var(--text);
+        }
+
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            backdrop-filter: blur(10px);
+            background: linear-gradient(180deg, rgba(11, 12, 16, .85), rgba(11, 12, 16, .6));
+            border-bottom: 1px solid #171a22
+        }
+
+        .wrap {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 18px 16px
+        }
+
+        h1 {
+            font-size: clamp(22px, 4vw, 36px);
+            margin: 4px 0 10px;
+            letter-spacing: .3px
+        }
+
+        .subtitle {
+            color: var(--muted);
+            font-size: 14px
+        }
+
+        /* Controls */
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: var(--gap);
+            margin-top: 16px
+        }
+
+        @media(min-width:840px) {
+            .controls {
+                grid-template-columns: 1.2fr .8fr
+            }
+        }
+
+        .card {
+            background: linear-gradient(180deg, rgba(255, 255, 255, .03), rgba(255, 255, 255, .01));
+            border: 1px solid #1a1e29;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 14px
+        }
+
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: var(--chip);
+            border: 1px solid #232733;
+            cursor: pointer;
+            user-select: none;
+            font-size: 13px
+        }
+
+        .chip input {
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 3px;
+            border: 1px solid #2d3240;
+            display: inline-block;
+            position: relative
+        }
+
+        .chip input:checked {
+            background: var(--accent);
+            border-color: var(--accent)
+        }
+
+        .chip .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%
+        }
+
+        .searchbar {
+            display: flex;
+            gap: 10px
+        }
+
+        .searchbar input,
+        .searchbar select {
+            width: 100%;
+            background: #0f1320;
+            border: 1px solid #232733;
+            color: var(--text);
+            padding: 12px 14px;
+            border-radius: 12px;
+            outline: none
+        }
+
+        .searchbar button {
+            background: var(--accent);
+            border: none;
+            color: white;
+            padding: 12px 16px;
+            border-radius: 12px;
+            cursor: pointer
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            margin: 28px 0 80px
+        }
+
+        .timeline::before {
+            content: "";
+            position: absolute;
+            left: calc(50% - 2px);
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(180deg, #232733, var(--line));
+            border-radius: 6px
+        }
+
+        .group {
+            position: relative;
+            margin: 24px 0
+        }
+
+        .decade {
+            position: sticky;
+            top: 76px;
+            z-index: 5;
+            text-align: center;
+            margin: 0 auto 18px;
+            width: max-content;
+            background: #0d111a;
+            border: 1px solid #1a1e29;
+            padding: 6px 12px;
+            border-radius: 12px;
+            color: #c8d6e5;
+            font-weight: 600;
+            letter-spacing: .5px
+        }
+
+        .item {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: center;
+            margin: 26px 0
+        }
+
+        .item:nth-child(even) .content {
+            grid-column: 1
+        }
+
+        .item:nth-child(even) .spine {
+            grid-column: 2
+        }
+
+        .spine {
+            position: relative;
+            height: 100%
+        }
+
+        .node {
+            position: absolute;
+            left: calc(50% - 10px);
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            background: var(--bg);
+            border: 4px solid var(--accent);
+            border-radius: 50%;
+            box-shadow: 0 0 0 5px rgba(108, 92, 231, .15)
+        }
+
+        .content {
+            background: var(--panel);
+            border: 1px solid #1b1f29;
+            padding: 16px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            position: relative
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            border: 1px solid #2b2f3c;
+            background: #121522;
+            margin-bottom: 8px
+        }
+
+        .badge .color {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%
+        }
+
+        .year {
+            font-weight: 800;
+            font-size: 20px;
+            letter-spacing: .5px
+        }
+
+        .title {
+            font-weight: 700;
+            font-size: 16px
+        }
+
+        .desc {
+            color: #c1c9d6;
+            margin-top: 8px;
+            line-height: 1.5
+        }
+
+        .meta {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+            color: #a8b2c1;
+            font-size: 12px
+        }
+
+        .content button.more {
+            margin-top: 12px;
+            background: transparent;
+            border: 1px solid #2b2f3c;
+            color: #cfd8e3;
+            padding: 8px 10px;
+            border-radius: 10px;
+            cursor: pointer
+        }
+
+        /* Modal */
+        dialog {
+            border: none;
+            border-radius: 18px;
+            background: #0f1320;
+            color: var(--text);
+            width: min(680px, 92vw);
+            box-shadow: var(--shadow);
+        }
+
+        dialog::backdrop {
+            background: rgba(0, 0, 0, .55)
+        }
+
+        .modal {
+            padding: 18px
+        }
+
+        .modal h3 {
+            margin: 0 0 6px
+        }
+
+        .modal .pill {
+            display: inline-block;
+            margin-right: 8px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            border: 1px solid #2b2f3c;
+            background: #121522;
+            font-size: 12px;
+            color: #c8d6e5
+        }
+
+        .close {
+            position: absolute;
+            right: 14px;
+            top: 10px;
+            background: #1a1f2e;
+            border: 1px solid #2b2f3c;
+            color: #cfd8e3;
+            padding: 6px 10px;
+            border-radius: 10px;
+            cursor: pointer
+        }
+
+        /* Print */
+        @media print {
+            header {
+                position: static;
+                background: transparent;
+                border: none
+            }
+
+            .decade {
+                position: static
+            }
+
+            .timeline::before {
+                left: -9999px
+            }
+
+            .item {
+                grid-template-columns: 1fr;
+                gap: 10px
+            }
+
+            .spine {
+                display: none
+            }
+
+            .content {
+                break-inside: avoid
+            }
+
+            .content button.more,
+            .controls {
+                display: none !important
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="wrap">
+            <h1>La evolución de los sistemas operativos</h1>
+            <div class="subtitle">De los mainframes y el procesamiento por lotes a móviles y la nube. Filtrá por
+                familia, buscá por palabra clave, o imprimí como PDF.</div>
+
+            <div class="controls">
+                <div class="card">
+                    <div class="filters" id="familyFilters"></div>
+                </div>
+                <div class="card">
+                    <div class="searchbar">
+                        <input id="search" placeholder="Buscar: Unix, Windows 95, multitarea, smartphone…" />
+                        <select id="era">
+                            <option value="all">Todas las décadas</option>
+                        </select>
+                        <button id="print">Imprimir / PDF</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="wrap">
+        <section id="timeline" class="timeline" aria-live="polite"></section>
+    </main>
+
+    <dialog id="dlg">
+        <div class="modal">
+            <button class="close" onclick="dlg.close()">Cerrar ✕</button>
+            <h3 id="dlgTitle">Título</h3>
+            <div style="margin:2px 0 10px; color:#a8b2c1" id="dlgYear">Año</div>
+            <div style="margin:6px 0 10px" id="dlgBadges"></div>
+            <p id="dlgDesc" style="line-height:1.65"></p>
+        </div>
+    </dialog>
+
+    <script>
+        // === Dataset de hitos (curado y compacto) ===
+        // Campos: year, title, family, details, tags[]
+        const events = [
+            { year: 1956, title: "GM-NAA I/O (mainframe)", family: "Mainframe/Batch", details: "Considerado uno de los primeros sistemas operativos en producción, creado para IBM 704 en General Motors. Introdujo manejo de I/O en lote.", tags: ["batch", "mainframe", "IBM 704"] },
+            { year: 1961, title: "CTSS — Compatible Time-Sharing System", family: "Unix & Familiares", details: "Proyecto del MIT que populariza el time-sharing; precursor conceptual de Multics y Unix.", tags: ["time-sharing", "MIT"] },
+            { year: 1964, title: "IBM OS/360", family: "Mainframe/Batch", details: "Estandariza el software de IBM para la familia System/360; influye en diseño de OS empresariales por décadas.", tags: ["IBM", "System/360"] },
+            { year: 1969, title: "UNIX (Bell Labs)", family: "Unix & Familiares", details: "Creado por Ken Thompson, Dennis Ritchie y equipo. Portabilidad en C, jerarquía de archivos, pipes, filosofía 'haz una cosa bien'.", tags: ["Bell Labs", "C", "pipes"] },
+            { year: 1974, title: "CP/M (Gary Kildall)", family: "PC Clásicos", details: "SO dominante para microcomputadoras de 8 bits; inspiración de MS-DOS y ecosistema temprano de PC.", tags: ["8-bit", "microcomputers"] },
+            { year: 1978, title: "Apple DOS 3.1", family: "Apple/macOS", details: "Primer SO de disco para Apple II; masifica la microinformática doméstica.", tags: ["Apple II", "disquetes"] },
+            { year: 1981, title: "MS-DOS (para IBM PC)", family: "Windows/MS-DOS", details: "Base del software de PC durante los 80. Interfaz de línea de comandos, arquitectura sencilla, enorme adopción.", tags: ["IBM PC", "CLI"] },
+            { year: 1983, title: "Apple Lisa OS (GUI)", family: "Apple/macOS", details: "Introduce GUI con ventanas, íconos, mouse y multitarea cooperativa en entorno comercial.", tags: ["GUI", "Lisa"] },
+            { year: 1984, title: "Macintosh System 1", family: "Apple/macOS", details: "Populariza la interfaz gráfica a gran escala. Escritorio, menús, arrastrar y soltar.", tags: ["Mac", "GUI"] },
+            { year: 1985, title: "Windows 1.0", family: "Windows/MS-DOS", details: "Entorno gráfico sobre MS-DOS. Ventanas en mosaico, mouse, primeras apps.", tags: ["GUI", "Microsoft"] },
+            { year: 1987, title: "MINIX (Andrew S. Tanenbaum)", family: "Unix & Familiares", details: "Sistema educativo microkernel que influyó en el diseño de Linux y debates de arquitectura.", tags: ["microkernel", "educativo"] },
+            { year: 1989, title: "NeXTSTEP", family: "Apple/macOS", details: "SO de NeXT con base Unix y GUI avanzada; más tarde base tecnológica de Mac OS X.", tags: ["NeXT", "Objective-C"] },
+            { year: 1991, title: "Linux (Linus Torvalds)", family: "Linux", details: "Kernel libre estilo Unix; combinado con GNU forma distribuciones Linux; enorme relevancia en servidores y nube.", tags: ["kernel", "GNU", "open source"] },
+            { year: 1993, title: "Windows NT 3.1", family: "Windows/MS-DOS", details: "Nueva arquitectura 32-bit, preemptive multitasking, seguridad y portabilidad, base de Windows moderno.", tags: ["NT", "32-bit"] },
+            { year: 1995, title: "Windows 95", family: "Windows/MS-DOS", details: "Interfaz moderna con menú Inicio, barra de tareas, Plug and Play; adopción masiva.", tags: ["Start", "PnP"] },
+            { year: 1996, title: "Palm OS", family: "Móviles", details: "SO para PDAs: interfaz táctil con stylus; precursor de la informática móvil moderna.", tags: ["PDA", "stylus"] },
+            { year: 1997, title: "BeOS", family: "Otros/Innovación", details: "Diseñado para multimedia, multiprocesamiento y latencias bajas; influencia en diseño moderno.", tags: ["multimedia", "latencia"] },
+            { year: 2000, title: "Windows 2000", family: "Windows/MS-DOS", details: "Basado en NT, estabilidad para entornos empresariales; Active Directory.", tags: ["AD", "NT"] },
+            { year: 2001, title: "Mac OS X 10.0 (Cheetah)", family: "Apple/macOS", details: "Unifica herencia NeXTSTEP y Mac; núcleo XNU (Mach+BSD), interfaz Aqua.", tags: ["XNU", "Aqua"] },
+            { year: 2001, title: "Windows XP", family: "Windows/MS-DOS", details: "Gran ciclo de vida, estabilidad y usabilidad; amplia compatibilidad.", tags: ["Luna", "estabilidad"] },
+            { year: 2007, title: "iOS 1 (iPhone)", family: "Móviles", details: "Revoluciona smartphones con multitouch, App Store (2008) y modelo de sandbox.", tags: ["multitouch", "sandbox"] },
+            { year: 2008, title: "Android 1.0 (HTC Dream)", family: "Móviles", details: "SO móvil abierto basado en Linux; ecosistema masivo de fabricantes.", tags: ["Linux", "smartphone"] },
+            { year: 2011, title: "ChromeOS", family: "Cloud/Web", details: "Sistema centrado en navegador y web apps; actualizaciones continuas y seguridad fuerte.", tags: ["web", "auto-update"] },
+            { year: 2012, title: "Windows 8 (Modern UI)", family: "Windows/MS-DOS", details: "Interfaz orientada a táctil; inicio de tienda de apps en Windows.", tags: ["táctil", "Store"] },
+            { year: 2015, title: "Windows 10 (Windows as a Service)", family: "Windows/MS-DOS", details: "Modelo de actualización continua; integración con Azure y WSL (2016).", tags: ["WaaS", "WSL"] },
+            { year: 2017, title: "Fuchsia (proyecto)", family: "Otros/Innovación", details: "Nuevo SO de Google, microkernel Zircon; despliegues selectivos en dispositivos nest/hub.", tags: ["Zircon", "Google"] },
+            { year: 2019, title: "iPadOS", family: "Móviles", details: "Fork de iOS optimizado para productividad en tablet.", tags: ["tablet", "multitarea"] },
+            { year: 2020, title: "macOS Big Sur & Apple Silicon", family: "Apple/macOS", details: "Transición a chips ARM (M1) con Rosetta 2; rediseño de interfaz.", tags: ["ARM", "Rosetta 2"] },
+            { year: 2021, title: "Windows 11", family: "Windows/MS-DOS", details: "Nuevo diseño, seguridad (TPM), subsistema Android (WSA) y mejoras de ventanas.", tags: ["TPM", "WSA"] },
+            { year: 2022, title: "ChromeOS Flex", family: "Cloud/Web", details: "Versión instalable para PCs/Macs; extiende vida útil de hardware.", tags: ["reciclaje", "web"] },
+            { year: 2023, title: "Android 14", family: "Móviles", details: "Mejoras en privacidad, rendimiento y adaptable a formatos plegables.", tags: ["privacidad", "foldables"] },
+            { year: 2023, title: "iOS 17", family: "Móviles", details: "Contact Posters, mejoras en mensajes, StandBy y refinamientos del sistema.", tags: ["UX", "Apple"] },
+            { year: 2024, title: "macOS Sequoia", family: "Apple/macOS", details: "Funciones de continuidad, mejoras en ventanas y productividad; continuidad de Apple Silicon.", tags: ["productividad", "Apple Silicon"] }
+        ];
+
+        // Paleta por familia
+        const families = {
+            "Unix & Familiares": "#00d1b2",
+            "Windows/MS-DOS": "#1e90ff",
+            "Apple/macOS": "#ff6b6b",
+            "Linux": "#2ecc71",
+            "Móviles": "#f1c40f",
+            "Mainframe/Batch": "#9b59b6",
+            "Cloud/Web": "#00bcd4",
+            "Otros/Innovación": "#ffa500"
+        };
+
+        // === UI ===
+        const timelineEl = document.getElementById('timeline');
+        const familyFiltersEl = document.getElementById('familyFilters');
+        const searchEl = document.getElementById('search');
+        const eraEl = document.getElementById('era');
+        const dlg = document.getElementById('dlg');
+        const dlgTitle = document.getElementById('dlgTitle');
+        const dlgYear = document.getElementById('dlgYear');
+        const dlgBadges = document.getElementById('dlgBadges');
+        const dlgDesc = document.getElementById('dlgDesc');
+
+        // Build family filter chips
+        const activeFamilies = new Set(Object.keys(families));
+        function renderFamilyChips() {
+            familyFiltersEl.innerHTML = '';
+            Object.entries(families).forEach(([name, color]) => {
+                const lab = document.createElement('label');
+                lab.className = 'chip';
+                lab.innerHTML = `
+          <span class="dot" style="background:${color}"></span>
+          <span>${name}</span>
+          <input type="checkbox" checked aria-label="${name}">
+        `;
+                const input = lab.querySelector('input');
+                input.addEventListener('change', () => {
+                    if (input.checked) activeFamilies.add(name); else activeFamilies.delete(name);
+                    render();
+                });
+                familyFiltersEl.appendChild(lab);
+            });
+        }
+
+        // Build era options (por década)
+        function decadeOf(y) { return Math.floor(y / 10) * 10 }
+        const decades = [...new Set(events.map(e => decadeOf(e.year)))].sort((a, b) => a - b);
+        function renderEraOptions() {
+            decades.forEach(d => {
+                const opt = document.createElement('option');
+                opt.value = String(d);
+                opt.textContent = `${d}s`;
+                eraEl.appendChild(opt);
+            })
+        }
+
+        // Render timeline
+        function render() {
+            const q = searchEl.value.trim().toLowerCase();
+            const era = eraEl.value;
+            // Filtrar
+            const filtered = events
+                .filter(e => activeFamilies.has(e.family))
+                .filter(e => era === 'all' ? true : decadeOf(e.year) === Number(era))
+                .filter(e => {
+                    if (!q) return true;
+                    const hay = [e.title, e.details, e.family, ...(e.tags || []), e.year].join(' ').toLowerCase();
+                    return hay.includes(q);
+                })
+                .sort((a, b) => a.year - b.year);
+
+            // Agrupar por década
+            const byDecade = new Map();
+            filtered.forEach(e => {
+                const d = decadeOf(e.year);
+                if (!byDecade.has(d)) byDecade.set(d, []);
+                byDecade.get(d).push(e);
+            });
+
+            // Pintar
+            timelineEl.innerHTML = '';
+            [...byDecade.keys()].sort((a, b) => a - b).forEach(d => {
+                const group = document.createElement('div');
+                group.className = 'group';
+                const h = document.createElement('div');
+                h.className = 'decade';
+                h.textContent = `${d}s`;
+                group.appendChild(h);
+
+                byDecade.get(d).forEach((e, i) => {
+                    const row = document.createElement('div');
+                    row.className = 'item';
+
+                    const content = document.createElement('div');
+                    content.className = 'content';
+                    content.innerHTML = `
+            <div class="badge">
+              <span class="color" style="background:${families[e.family]}"></span>
+              <span>${e.family}</span>
+            </div>
+            <div class="year">${e.year}</div>
+            <div class="title">${e.title}</div>
+            <div class="desc">${e.details}</div>
+            <div class="meta">
+              ${(e.tags || []).map(t => `<span class="pill">#${t}</span>`).join('')}
+            </div>
+            <button class="more">Ver más</button>
+          `;
+
+                    const spine = document.createElement('div');
+                    spine.className = 'spine';
+                    spine.innerHTML = '<div class="node" aria-hidden="true"></div>';
+
+                    // evento de detalle (modal)
+                    content.querySelector('.more').addEventListener('click', () => openModal(e));
+                    content.addEventListener('click', (ev) => {
+                        if (ev.target.closest('button.more')) return; // ya manejado
+                        openModal(e);
+                    });
+
+                    row.appendChild(content);
+                    row.appendChild(spine);
+                    group.appendChild(row);
+                })
+
+                timelineEl.appendChild(group);
+            });
+
+            if (filtered.length === 0) {
+                const empty = document.createElement('div');
+                empty.style.cssText = 'text-align:center; opacity:.8; padding:30px';
+                empty.textContent = 'No hay resultados con estos filtros. Probá otra familia, década o búsqueda.';
+                timelineEl.appendChild(empty);
+            }
+        }
+
+        function openModal(e) {
+            dlgTitle.textContent = e.title;
+            dlgYear.textContent = `Año: ${e.year}`;
+            dlgBadges.innerHTML = `<span class="pill">${e.family}</span>` + (e.tags || []).map(t => ` <span class="pill">#${t}</span>`).join('');
+            dlgDesc.textContent = e.details;
+            dlg.showModal();
+        }
+
+        document.getElementById('print').addEventListener('click', () => window.print());
+        searchEl.addEventListener('input', () => render());
+        eraEl.addEventListener('change', () => render());
+
+        // Init
+        renderFamilyChips();
+        renderEraOptions();
+        render();
+    </script>
+</body>
+
+</html>
