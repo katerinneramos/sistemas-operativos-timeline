@@ -22,14 +22,9 @@
             box-sizing: border-box
         }
 
-        html,
-        body {
-            height: 100%
-        }
-
         body {
             margin: 0;
-            font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+            font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans";
             background: radial-gradient(1200px 800px at 80% -10%, rgba(108, 92, 231, .08), transparent),
                 radial-gradient(900px 600px at 10% 110%, rgba(80, 250, 123, .06), transparent),
                 var(--bg);
@@ -63,7 +58,6 @@
             margin-bottom: 16px
         }
 
-        /* Controls */
         .controls {
             display: grid;
             grid-template-columns: 1fr;
@@ -76,7 +70,9 @@
             border: 1px solid #1a1e29;
             border-radius: var(--radius);
             box-shadow: var(--shadow);
-            padding: 14px
+            padding: 14px;
+            width: 100%;
+            /* ancho fijo para todas */
         }
 
         .searchbar {
@@ -105,7 +101,6 @@
             font-size: 13px;
         }
 
-        /* Timeline */
         .timeline {
             position: relative;
             margin: 28px 0 80px
@@ -124,30 +119,26 @@
 
         .item {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 40px;
+            grid-template-columns: 1fr 80px 1fr;
+            gap: 20px;
             align-items: center;
             margin: 26px 0
         }
 
         .item:nth-child(even) .content {
-            grid-column: 1
-        }
-
-        .item:nth-child(even) .spine {
-            grid-column: 2
+            grid-column: 3;
         }
 
         .spine {
             position: relative;
-            height: 100%
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .node {
             position: absolute;
-            left: calc(50% - 10px);
-            top: 50%;
-            transform: translate(-50%, -50%);
             width: 20px;
             height: 20px;
             background: var(--bg);
@@ -162,10 +153,10 @@
             padding: 16px;
             border-radius: var(--radius);
             box-shadow: var(--shadow);
-            position: relative;
             display: flex;
-            align-items: flex-start;
-            gap: 10px
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
         }
 
         .year-dot {
@@ -173,7 +164,8 @@
             height: 12px;
             border-radius: 50%;
             margin-top: 4px;
-            flex-shrink: 0
+            flex-shrink: 0;
+            background: var(--accent);
         }
 
         .text-content {
@@ -198,17 +190,21 @@
             line-height: 1.5
         }
 
-        .content button.more {
-            margin-top: 12px;
-            background: transparent;
-            border: 1px solid #2b2f3c;
-            color: #cfd8e3;
-            padding: 8px 10px;
-            border-radius: 10px;
-            cursor: pointer
+        .decade {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--accent);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 2px solid var(--accent);
+            text-align: center;
         }
 
-        /* Modal */
         dialog {
             border: none;
             border-radius: 18px;
@@ -248,18 +244,13 @@
     <header>
         <div class="wrap">
             <h1>La evolución de los Sistemas Operativos</h1>
-            <div class="subtitle">Un sistema operativo (SO) es el software principal que administra los recursos de una
-                computadora, controla el hardware,
-                y permite que las aplicaciones se ejecuten de manera eficiente. Actúa como intermediario entre el
-                usuario y la máquina.
-
-                La evolución de los sistemas operativos refleja la transformación de las computadoras desde máquinas
-                únicas y costosas
-                hasta dispositivos personales y móviles, pasando por entornos multiusuario, interfaces gráficas y
-                plataformas en la
-                nube. Cada etapa ha buscado mejorar la eficiencia, la seguridad, la portabilidad y la
-                usabilidad.<br>Filtrá por década y descargá como PDF.</div>
-
+            <div class="subtitle">
+                Un sistema operativo (SO) es el software principal que administra los recursos de una computadora,
+                controla el hardware, y permite que las aplicaciones se ejecuten.
+                Su evolución refleja la transformación de las computadoras desde máquinas costosas hasta móviles y en la
+                nube.
+                Filtrá por década y descargá como PDF.
+            </div>
             <div class="controls">
                 <div class="card">
                     <div class="searchbar">
@@ -272,7 +263,6 @@
             </div>
         </div>
     </header>
-
     <main class="wrap">
         <section id="timeline" class="timeline" aria-live="polite"></section>
     </main>
@@ -285,110 +275,128 @@
             <p id="dlgDesc" style="line-height:1.65"></p>
         </div>
     </dialog>
+
     <script>
-        // Campos: year, title, family, details, tags[]
         const events = [
-            { year: 1956, title: "GM-NAA I/O (mainframe)", details: "Considerado uno de los primeros sistemas operativos en producción, creado para IBM 704 en General Motors. Permitía automatizar el manejo de entrada/salida en lote, reduciendo la intervención manual de los operadores y optimizando el uso de la máquina, sentando las bases de los SO batch.", tags: ["batch", "mainframe", "IBM 704"] },
-            { year: 1961, title: "CTSS — Compatible Time-Sharing System", details: "Desarrollado en MIT, CTSS introdujo el concepto de tiempo compartido (time-sharing), permitiendo que varios usuarios interactuaran con la computadora simultáneamente mediante terminales. Sentó las bases conceptuales para Multics y Unix, introduciendo ideas como la multitarea y la protección de memoria.", tags: ["time-sharing", "MIT"] },
-            { year: 1964, title: "IBM OS/360", details: "Sistema operativo para la familia IBM System/360 que buscaba unificar el software para distintas máquinas. Estableció estándares para la gestión de trabajos en lote, dispositivos y memoria, influyendo en la arquitectura de sistemas empresariales durante décadas.", tags: ["IBM", "System/360"] },
-            { year: 1965, title: "Multics (Multiplexed Information and Computing Service)", details: "Desarrollado por MIT, GE y Bell Labs, Multics implementó características avanzadas como jerarquía de archivos, seguridad por niveles, y soporte para múltiples usuarios y procesos concurrentes. Su filosofía modular inspiró directamente la creación de Unix.", tags: ["Multics", "Unix"] },
-            { year: 1969, title: "UNIX (Ken Thompson y Dennis Ritchie en Bell Labs)", details: "Creado por Ken Thompson y Dennis Ritchie, UNIX introdujo conceptos clave: portabilidad gracias a C, jerarquía de archivos, pipes para comunicación entre procesos y un enfoque de 'haz una cosa y hazla bien'. Multiusuario y multitarea, su diseño ha influido en la mayoría de sistemas modernos, incluidos Linux y macOS.", tags: ["Bell Labs", "C", "pipes"] },
-            { year: 1974, title: "CP/M (Gary Kildall)", details: "Sistema operativo dominante en microcomputadoras de 8 bits. Permitió que programadores y usuarios manejaran discos y archivos de manera estandarizada, sirviendo de inspiración directa para MS-DOS y el ecosistema temprano de PC.", tags: ["8-bit", "microcomputers"] },
-            { year: 1973, title: "Unix reescrito en lenguaje C", details: "La reescritura de Unix en C permitió portabilidad entre diferentes arquitecturas de hardware, facilitando su adopción en universidades, laboratorios y más tarde en sistemas comerciales. Esto marcó un cambio radical frente a sistemas escritos en ensamblador.", tags: ["Unix", "C"] },
-            { year: 1978, title: "Apple DOS 3.1", details: "Primer sistema operativo de disco para la Apple II, permitiendo el uso de disquetes. Popularizó la microinformática doméstica y sentó las bases para futuros sistemas operativos Apple.", tags: ["Apple II", "disquetes"] },
-            { year: 1981, title: "MS-DOS (Microsoft Disk Operating System, para IBM PC)", details: "MS-DOS se convirtió en el estándar de software para PC en los años 80. Sistema basado en línea de comandos, arquitectura sencilla y extensible mediante programas externos. Su éxito fue clave para la expansión de Microsoft en computación personal.", tags: ["IBM PC", "CLI"] },
-            { year: 1983, title: "Apple Lisa OS (GUI)", details: "Introduce la primera interfaz gráfica de usuario comercial, con ventanas, íconos, mouse y multitarea cooperativa. Fue pionero en facilitar la interacción con la computadora para usuarios no técnicos, aunque su alto costo limitó su adopción.", tags: ["GUI", "Lisa"] },
-            { year: 1984, title: "Macintosh System 1", details: "Populariza la interfaz gráfica a gran escala con escritorio, menús, arrastrar y soltar, íconos y mouse. Marcó el inicio de la era GUI amigable para usuarios domésticos y profesionales creativos.", tags: ["Mac", "GUI"] },
-            { year: 1985, title: "Windows 1.0", details: "Primer entorno gráfico de Microsoft sobre MS-DOS, con ventanas en mosaico y soporte para mouse. Introduce primeras aplicaciones gráficas como Paint y calculadora, aunque dependía del DOS subyacente.", tags: ["GUI", "Microsoft"] },
-            { year: 1987, title: "MINIX (Andrew S. Tanenbaum)", details: "Sistema operativo educativo basado en microkernel, diseñado para enseñanza de conceptos de SO. Influenció la creación de Linux y los debates sobre microkernel vs monolítico.", tags: ["microkernel", "educativo"] },
-            { year: 1989, title: "NeXTSTEP", details: "Sistema operativo de NeXT basado en Unix con interfaz gráfica avanzada y orientación a objetos (Objective-C). Fue la base tecnológica de Mac OS X y permitió innovaciones en desarrollo de software y entornos gráficos.", tags: ["NeXT", "Objective-C"] },
-            { year: 1991, title: "Linux (Linus Torvalds)", details: "Kernel libre estilo Unix que, combinado con utilidades GNU, forma distribuciones Linux. Extremadamente flexible, seguro y escalable. Usado en servidores, supercomputadoras, dispositivos IoT y smartphones (Android).", tags: ["kernel", "GNU", "open source"] },
-            { year: 1993, title: "Windows NT 3.1", details: "Arquitectura 32-bit, multitarea preventiva, soporte multiprocesador y seguridad avanzada. Base de la familia Windows moderna, orientada a entornos corporativos y profesionales.", tags: ["NT", "32-bit"] },
-            { year: 1995, title: "Windows 95", details: "Introduce Menú Inicio, barra de tareas, Plug and Play y soporte multitarea mejorada. Alta adopción comercial, integrando PC domésticas y funciones empresariales básicas.", tags: ["Start", "PnP"] },
-            { year: 1996, title: "Palm OS", details: "Sistema operativo para PDAs con interfaz táctil basada en stylus. Popularizó la informática móvil personal y sentó las bases para smartphones modernos.", tags: ["PDA", "stylus"] },
-            { year: 1997, title: "BeOS", details: "Sistema diseñado para multimedia, multiprocesamiento y baja latencia. Innovador en manejo de audio/video y ventanas, influyendo en SO modernos orientados a medios.", tags: ["multimedia", "latencia"] },
-            { year: 2000, title: "Windows 2000", details: "Basado en NT, con estabilidad y seguridad para entornos corporativos, soporte para Active Directory y red. Coincide con evolución de BSD moderno (FreeBSD, OpenBSD, NetBSD) en servidores.", tags: ["AD", "NT"] },
-            { year: 2001, title: "Mac OS X 10.0 (Cheetah)", details: "Combina herencia de NeXTSTEP con Mac clásico. Núcleo XNU (Mach + BSD) y GUI Aqua. Refuerza estabilidad, multitarea y facilidad de uso para usuarios creativos y profesionales.", tags: ["XNU", "Aqua"] },
-            { year: 2001, title: "Windows XP", details: "SO ampliamente adoptado por estabilidad, compatibilidad y facilidad de uso. Interfaz Luna y mejoras en networking y seguridad; uno de los sistemas más longevos y populares.", tags: ["Luna", "estabilidad"] },
-            { year: 2003, title: "Android (proyecto inicial)", details: "Originalmente para cámaras digitales, luego comprado por Google. Evoluciona a un SO móvil basado en Linux con ecosistema masivo y soporte de fabricantes de smartphones.", tags: ["Android"] },
-            { year: 2007, title: "iOS 1 (iPhone)", details: "Revoluciona smartphones con multitouch, pantalla táctil capacitiva, modelo sandbox y App Store (2008). Influencia clave en UX y ecosistema móvil.", tags: ["multitouch", "sandbox"] },
-            { year: 2008, title: "Android 1.0 (HTC Dream)", details: "Primer Android comercial basado en Linux. Sistema abierto con ecosistema de apps y soporte para múltiples fabricantes, marcando el inicio de la dominancia Android.", tags: ["Linux", "smartphone"] },
-            { year: 2009, title: "Windows 7", details: "Recupera estabilidad y facilidad de uso después de Windows Vista. Mejor soporte hardware, rendimiento y compatibilidad; ampliamente adoptado en empresas y hogares.", tags: ["Store"] },
-            { year: 2011, title: "ChromeOS", details: "SO centrado en navegador y web apps, con actualizaciones automáticas, seguridad reforzada y diseño minimalista. Optimizado para educación y dispositivos ligeros.", tags: ["web", "auto-update"] },
-            { year: 2012, title: "Windows 8 (Modern UI)", details: "Interfaz orientada a pantallas táctiles, inicio de tienda de apps y enfoque en dispositivos híbridos. Mezcla de escritorio clásico y Metro UI para tablets.", tags: ["táctil", "Store"] },
-            { year: 2014, title: "Windows 10 (Windows as a Service)", details: "Actualizaciones continuas, integración con servicios en la nube como Azure, soporte para WSL (Windows Subsystem for Linux) y mejoras en seguridad. Windows 10 unifica experiencia para PC, tablet y móviles.", tags: ["WaaS", "WSL"] },
-            { year: 2017, title: "Fuchsia (proyecto)", details: "Sistema operativo de Google basado en microkernel Zircon. Diseñado para IoT y dispositivos integrados; modularidad y seguridad como prioridades.", tags: ["Zircon", "Google"] },
-            { year: 2019, title: "iPadOS", details: "Fork de iOS optimizado para productividad en tablet: multitarea real, split-screen, soporte de Apple Pencil y gestos avanzados.", tags: ["tablet", "multitarea"] },
-            { year: 2020, title: "macOS Big Sur & Apple Silicon", details: "Transición de Intel a chips ARM (M1) con emulación Rosetta 2. Rediseño de interfaz, mayor rendimiento y eficiencia energética, continuidad en ecosistema Apple.", tags: ["ARM", "Rosetta 2"] },
-            { year: 2021, title: "Windows 11", details: "Nuevo diseño moderno, seguridad reforzada (TPM 2.0), soporte para apps Android vía WSA y mejoras en productividad y gestión de ventanas.", tags: ["TPM", "WSA"] },
-            { year: 2022, title: "ChromeOS Flex", details: "Versión instalable de ChromeOS para PCs y Macs, extendiendo vida útil de hardware antiguo y ofreciendo un SO ligero, seguro y basado en web.", tags: ["reciclaje", "web"] },
-            { year: 2023, title: "Android 14", details: "Mejoras en privacidad, rendimiento, soporte para formatos plegables, optimización para distintos factores de forma y control avanzado de notificaciones.", tags: ["privacidad", "foldables"] },
-            { year: 2023, title: "iOS 17", details: "Nuevas funciones como Contact Posters, mejoras en Mensajes y FaceTime, modo StandBy, refinamientos de rendimiento y mayor integración entre dispositivos Apple.", tags: ["UX", "Apple"] },
-            { year: 2024, title: "macOS Sequoia", details: "Continuidad en Apple Silicon, mejoras en gestión de ventanas, productividad, multitarea y funcionalidades integradas con ecosistema Apple.", tags: ["productividad", "Apple Silicon"] }
+            { year: 1956, title: "GM-NAA I/O (mainframe)", family: "Mainframe/Batch", details: "Considerado uno de los primeros sistemas operativos en producción, desarrollado por General Motors para el IBM 704. Introdujo la idea de procesamiento por lotes (batch processing), permitiendo ejecutar trabajos en cola sin intervención constante del operador. Marcó el inicio de la automatización en el uso de computadoras.", tags: ["batch", "mainframe", "IBM 704"] },
+            { year: 1961, title: "CTSS — Compatible Time-Sharing System", family: "Unix & Familiares", details: "Proyecto del MIT que populariza el time-sharing; precursor conceptual de Multics y Unix.", tags: ["time-sharing", "MIT"] },
+            { year: 1964, title: "IBM OS/360", family: "Mainframe/Batch", details: "Estandariza el software de IBM para la familia System/360; influye en diseño de OS empresariales por décadas.", tags: ["IBM", "System/360"] },
+            { year: 1965, title: "Multics (Multiplexed Information and Computing Service)", family: "Multics", details: "Desarrollo conjunto de MIT, GE y Bell Labs. Inspiración directa para UNIX.", tags: ["Multics", "Unix"] },
+            { year: 1969, title: "UNIX (Ken Thompson y Dennis Ritchie en Bell Labs)", family: "Unix & Familiares", details: "Creado en los laboratorios Bell por Ken Thompson y Dennis Ritchie. Unix revolucionó el mundo de los sistemas operativos con su filosofía de simplicidad, modularidad y portabilidad. Fue escrito en C, lo que facilitó su adaptación a diferentes máquinas. Se convirtió en la base de múltiples derivados como BSD, Linux y macOS.", tags: ["Bell Labs", "C", "pipes"] },
+            {
+                year: 1970,
+                title: "OS/360",
+                family: "Mainframes IBM",
+                details:
+                    "IBM lanza el OS/360 para su serie de mainframes System/360. Fue uno de los proyectos de software más ambiciosos y costosos de su época. Introdujo conceptos como la compatibilidad hacia adelante, gestión de memoria y multiprogramación, sentando las bases para sistemas operativos comerciales robustos."
+            },
+            { year: 1974, title: "CP/M (Gary Kildall)", family: "PC Clásicos", details: "SO dominante para microcomputadoras de 8 bits; inspiración de MS-DOS y ecosistema temprano de PC.", tags: ["8-bit", "microcomputers"] },
+            { year: 1973, title: "Unix reescrito en lenguaje C", family: "Unix & Familiares", details: "Lo hace portable y fácilmente adaptable a diferentes máquinas.", tags: ["Unix", "C"] },
+            { year: 1978, title: "Apple DOS 3.1", family: "Apple/macOS", details: "Primer SO de disco para Apple II; masifica la microinformática doméstica.", tags: ["Apple II", "disquetes"] },
+            { year: 1981, title: "MS-DOS (Microsoft Disk Operating System, para IBM PC)", family: "Windows/MS-DOS", details: "Microsoft compra QDOS y lo transforma en MS-DOS, el sistema operativo de disco que se convierte en la base para las primeras PCs IBM. Dominó la década de 1980 como sistema operativo de línea de comandos, impulsando la masificación de la informática personal.", tags: ["IBM PC", "CLI"] },
+            { year: 1983, title: "Apple Lisa OS (GUI)", family: "Apple/macOS", details: "Introduce GUI con ventanas, íconos, mouse y multitarea cooperativa en entorno comercial.", tags: ["GUI", "Lisa"] },
+            { year: 1984, title: "Macintosh System 1", family: "Apple/macOS", details: "Apple lanza la Macintosh junto con el primer Mac OS, pionero en ofrecer una interfaz gráfica de usuario (GUI) accesible al público general. Introdujo ventanas, íconos, menús y mouse como herramientas estándar de interacción. Este enfoque influyó en la evolución de Windows y en toda la industria.", tags: ["Mac", "GUI"] },
+            { year: 1985, title: "Windows 1.0", family: "Windows/MS-DOS", details: "Microsoft introduce Windows como una interfaz gráfica sobre MS- DOS.Aunque rudimentario y con poca adopción inicial, marcó el inicio de la familia Windows, que años después se convertiría en el sistema operativo dominante en el mercado de PCs.", tags: ["GUI", "Microsoft"] },
+            { year: 1987, title: "MINIX (Andrew S. Tanenbaum)", family: "Unix & Familiares", details: "Sistema educativo microkernel que influyó en el diseño de Linux y debates de arquitectura.", tags: ["microkernel", "educativo"] },
+            { year: 1989, title: "NeXTSTEP", family: "Apple/macOS", details: "SO de NeXT con base Unix y GUI avanzada; más tarde base tecnológica de Mac OS X.", tags: ["NeXT", "Objective-C"] },
+            { year: 1991, title: "Linux (Linus Torvalds)", family: "Linux", details: "Linus Torvalds libera la primera versión del kernel Linux, inspirado en Unix. Combinado con las herramientas GNU, se convierte en un sistema operativo libre y de código abierto. Linux creció hasta dominar servidores, supercomputadoras y más tarde dispositivos móviles (a través de Android).", tags: ["kernel", "GNU", "open source"] },
+            { year: 1993, title: "Windows NT 3.1", family: "Windows/MS-DOS", details: "Microsoft desarrolla Windows NT(New Technology) como un sistema operativo más robusto y multitarea.Diseñado para empresas, introdujo un kernel moderno y seguro que sirvió de base para futuras versiones como Windows 2000, XP y posteriores.Fue un cambio arquitectónico frente a la serie Windows 9x.", tags: ["NT", "32-bit"] },
+            { year: 1995, title: "Windows 95", family: "Windows/MS-DOS", details: "Lanzado con gran campaña de marketing, Windows 95 consolidó la interfaz gráfica con el botón de Inicio, barra de tareas y soporte nativo para aplicaciones de 32 bits.Fue clave en la popularización de las PC y en la expansión de Internet, gracias al soporte de TCP/ IP.", tags: ["Start", "PnP"] },
+            { year: 1996, title: "Palm OS", family: "Móviles", details: "SO para PDAs: interfaz táctil con stylus; precursor de la informática móvil moderna.", tags: ["PDA", "stylus"] },
+            { year: 1997, title: "BeOS", family: "Otros/Innovación", details: "Diseñado para multimedia, multiprocesamiento y latencias bajas; influencia en diseño moderno.", tags: ["multimedia", "latencia"] },
+            { year: 2000, title: "Windows 2000", family: "Windows/MS-DOS", details: "Basado en NT, estabilidad para entornos empresariales; Active Directory. Surge también BSD moderno (FreeBSD, OpenBSD, NetBSD).", tags: ["AD", "NT"] },
+            { year: 2001, title: "Mac OS X 10.0 (Cheetah)", family: "Apple/macOS", details: "Apple lanza Mac OS X, basado en Darwin (derivado de Unix/BSD) y con interfaz gráfica Aqua. Supuso una reinvención del sistema de Apple, combinando la estabilidad de Unix con un diseño visual moderno. Sentó las bases del macOS actual y de la convergencia con iOS.", tags: ["XNU", "Aqua"] },
+            { year: 2001, title: "Windows XP", family: "Windows/MS-DOS", details: "Gran ciclo de vida, estabilidad y usabilidad; amplia compatibilidad. Windows XP: Uno de los más usados de la historia", tags: ["Luna", "estabilidad"] },
+            { year: 2003, title: "Android (proyecto inicial)", family: "Móviles", details: "Comienza como un sistema operativo para cámaras digitales antes de ser comprado por Google (2005).", tags: ["Android"] },
+            { year: 2007, title: "iOS 1 (iPhone)", family: "Móviles", details: "Apple presenta iOS junto al primer iPhone, transformando los sistemas operativos móviles. Introdujo una interfaz táctil fluida, App Store y un ecosistema cerrado pero seguro. iOS redefinió el mercado móvil e impulsó el modelo de 'apps' como estándar.", tags: ["multitouch", "sandbox"] },
+            { year: 2008, title: "Android 1.0 (HTC Dream)", family: "Móviles", details: "Google lanza Android, un sistema operativo móvil basado en Linux. Abierto y con soporte de múltiples fabricantes, rápidamente superó a iOS en cuota de mercado. Hoy es el sistema operativo más usado del mundo, presente en miles de dispositivos distintos.", tags: ["Linux", "smartphone"] },
+            { year: 2009, title: "Windows 7", family: "Windows/MS-DOS", details: "Amplia adopción, considerado el sucesor estable de XP.", tags: ["Store"] },
+            { year: 2011, title: "ChromeOS", family: "Cloud/Web", details: "Sistema centrado en navegador y web apps; actualizaciones continuas y seguridad fuerte.", tags: ["web", "auto-update"] },
+            { year: 2012, title: "Windows 8 (Modern UI)", family: "Windows/MS-DOS", details: "Microsoft apuesta por un diseño táctil con 'Metro UI', eliminando el menú Inicio. Aunque fue criticado, introdujo un enfoque híbrido entre tablets y PCs, preparando el terreno para Windows 10. Destacó por el soporte a la nube y la sincronización de cuentas.", tags: ["táctil", "Store"] },
+            { year: 2014, title: "Windows 10 (Windows as a Service)", family: "Windows/MS-DOS", details: "Microsoft lanza Windows 10 como 'el último Windows', con actualizaciones constantes en lugar de versiones separadas. Reintrodujo el menú Inicio, Cortana, integración con Xbox y un fuerte enfoque en la nube. Se convirtió en uno de los Windows más exitosos.", tags: ["WaaS", "WSL"] },
+            { year: 2017, title: "Fuchsia (proyecto)", family: "Otros/Innovación", details: "Nuevo SO de Google, microkernel Zircon; despliegues selectivos en dispositivos nest/hub.", tags: ["Zircon", "Google"] },
+            { year: 2019, title: "iPadOS", family: "Móviles", details: "Fork de iOS optimizado para productividad en tablet.", tags: ["tablet", "multitarea"] },
+            { year: 2020, title: "macOS Big Sur & Apple Silicon", family: "Apple/macOS", details: "Transición a chips ARM (M1) con Rosetta 2; rediseño de interfaz.", tags: ["ARM", "Rosetta 2"] },
+            { year: 2021, title: "Windows 11", family: "Windows/MS-DOS", details: "Microsoft presenta Windows 11 con un diseño más moderno y centrado en la productividad. Incluye mejoras de rendimiento, rediseño de la interfaz, integración con Teams y soporte para aplicaciones de Android. Su objetivo fue unificar la experiencia de PC y trabajo remoto.", tags: ["TPM", "WSA"] },
+            { year: 2022, title: "ChromeOS Flex", family: "Cloud/Web", details: "Versión instalable para PCs/Macs; extiende vida útil de hardware.", tags: ["reciclaje", "web"] },
+            { year: 2023, title: "Android 14", family: "Móviles", details: "Mejoras en privacidad, rendimiento y adaptable a formatos plegables.", tags: ["privacidad", "foldables"] },
+            { year: 2023, title: "iOS 17", family: "Móviles", details: "Contact Posters, mejoras en mensajes, StandBy y refinamientos del sistema.", tags: ["UX", "Apple"] },
+            { year: 2024, title: "macOS Sequoia", family: "Apple/macOS", details: "Apple anuncia macOS Sequoia, con integración avanzada de IA y mejoras en continuidad con dispositivos iOS.Representa la evolución de macOS hacia una experiencia cada vez más conectada y optimizada para hardware Apple Silicon.", tags: ["productividad", "Apple Silicon"] }
         ];
 
 
-        const colors = ["#6c5ce7", "#00cec9", "#fab1a0", "#fd79a8", "#e17055", "#00b894", "#ffeaa7", "#0984e3"]; // Colores cíclicos
         const timeline = document.getElementById("timeline");
         const eraSelect = document.getElementById("era");
         const dlg = document.getElementById("dlg");
-        const dlgTitle = document.getElementById("dlgTitle");
-        const dlgYear = document.getElementById("dlgYear");
-        const dlgDesc = document.getElementById("dlgDesc");
 
-        const decades = [...new Set(events.map(e => Math.floor(e.year / 10) * 10))].sort((a, b) => a - b);
+        // Crear opciones de décadas automáticamente
+        const decades = [...new Set(events.map(e => Math.floor(e.year / 10) * 10))];
+        decades.sort((a, b) => a - b);
         decades.forEach(d => {
             const opt = document.createElement("option");
             opt.value = d;
-            opt.textContent = `${d}s`;
+            opt.textContent = d + "s";
             eraSelect.appendChild(opt);
         });
 
-        function renderTimeline() {
-            const filterDecade = eraSelect.value;
-            timeline.innerHTML = "";
-            let left = true;
-            const filtered = events.filter(e => filterDecade === "all" || Math.floor(e.year / 10) * 10 == filterDecade);
+        function renderTimeline(filterDecade = 'all') {
+            timeline.innerHTML = '';
+            events.forEach((e, i) => {
+                const decade = Math.floor(e.year / 10) * 10;
+                if (filterDecade !== 'all' && filterDecade != decade) return;
 
-            filtered.forEach((e, i) => {
                 const item = document.createElement("div");
-                item.classList.add("item");
+                item.className = "item";
 
                 const content = document.createElement("div");
-                content.classList.add("content");
+                content.className = "content";
                 content.innerHTML = `
-          <div class="year-dot" style="background:${colors[i % colors.length]}"></div>
-          <div class="text-content">
-            <div class="year">${e.year}</div>
-            <div class="title">${e.title}</div>
-            <div class="desc">${e.details}</div>
-            <button class="more">Más info</button>
-          </div>
+                <div class="year">${e.year}</div>
+                <div class="title">${e.title}</div>
+                <div class="desc">${e.details}</div>
         `;
-                content.querySelector("button.more").addEventListener("click", () => {
-                    dlgTitle.textContent = e.title;
-                    dlgYear.textContent = e.year;
-                    dlgDesc.textContent = e.details;
+                content.onclick = () => {
+                    document.getElementById("dlgTitle").textContent = e.title;
+                    document.getElementById("dlgYear").textContent = e.year;
+                    document.getElementById("dlgDesc").textContent = e.details;
                     dlg.showModal();
-                });
+                }
 
                 const spine = document.createElement("div");
-                spine.classList.add("spine");
+                spine.className = "spine";
                 const node = document.createElement("div");
-                node.classList.add("node");
+                node.className = "node";
                 spine.appendChild(node);
 
-                item.appendChild(left ? content : spine);
-                item.appendChild(left ? spine : content);
+                const decadeDiv = document.createElement("div");
+                decadeDiv.className = "decade";
+                decadeDiv.textContent = decade + "s";
+
+                // Alternar lado izquierdo/derecho
+                if (i % 2 === 0) {
+                    item.appendChild(content);
+                    item.appendChild(spine);
+                    item.appendChild(decadeDiv);
+                } else {
+                    item.appendChild(decadeDiv);
+                    item.appendChild(spine);
+                    item.appendChild(content);
+                }
+
                 timeline.appendChild(item);
-                left = !left;
             });
         }
 
-        eraSelect.addEventListener("change", renderTimeline);
-        document.getElementById("print").addEventListener("click", () => window.print());
+        // Escuchar cambios en el select
+        eraSelect.addEventListener('change', (e) => {
+            const val = e.target.value;
+            renderTimeline(val === 'all' ? 'all' : parseInt(val));
+        });
+
         renderTimeline();
     </script>
+
+
 </body>
 
 </html>
